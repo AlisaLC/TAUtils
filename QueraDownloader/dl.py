@@ -7,6 +7,8 @@ import math
 from io import BytesIO
 from dotenv import load_dotenv
 import argparse
+import re
+import time
 
 
 def from_persian_digits(num):
@@ -46,8 +48,16 @@ def download(HW_ID: int, root_dir: str):
             file_url = f'https://quera.org/assignment/download_submission_file/{file_id}'
             with requests.get(file_url, headers=HEADER_DATA) as file_r:
                 file_r.raise_for_status()
-                with zipfile.ZipFile(BytesIO(file_r.content)) as zip_ref:
-                    zip_ref.extractall(f'{root_dir}/{std_id}')
+                try:
+                    with zipfile.ZipFile(BytesIO(file_r.content)) as zip_ref:
+                        zip_ref.extractall(f'{root_dir}/{std_id}')
+                except zipfile.BadZipFile:
+                    os.makedirs(f'{root_dir}/{std_id}', exist_ok=True)
+                    file_name = re.search(
+                        r'filename="(.+)"', file_r.headers['Content-Disposition']).group(1)
+                    with open(f'{root_dir}/{std_id}/{file_name}', 'wb') as f:
+                        f.write(file_r.content)
+                time.sleep(0.5)
                 pbar.update(1)
         page_counter += 1
     pbar.close()
@@ -58,7 +68,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Quera HW downloader')
     parser.add_argument('hw_id', type=int,
                         help='HW ID (can be extracted from the url)')
-    parser.add_argument('hw_dir', type=str,
+    parser.add_argument('hw_dir', type=str, default='HW', nargs='?',
                         help='Root directory of downloaded files')
     args = parser.parse_args()
     download(args.hw_id, args.hw_dir)
