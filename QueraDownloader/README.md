@@ -4,8 +4,8 @@ This scripts downloads all HW files of an assignment and unzips them in director
 First you have to install the requirements and set the `QUERA_SESSION_ID` in `.env` file from `session_id` in your Quera cookies.
 Now extract the assignment id from the URL in below pattern:
 
-`https://quera.org/course/assignments/[HW_ID]/problems`
+`https://quera.org/course/assignments/[HW_ID]/problems/[PROBLEM_ID]`
 
-Finally you run the scripts with the arguments as follows:
+Finally you run the scripts with the arguments as follows with `PROBLEM_ID` as optional parameter:
 
-`python dl.py [HW ID] [HW Dir]`
+`python dl.py [HW ID] [PROBLEM ID] [HW Dir]`
